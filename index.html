@@ -16,7 +16,6 @@
     #getData {
       display: flex;
       flex-direction: column;
-      /*gap: 10px;*/
       width: 300px;
       border: 3px dotted rgba(49, 23, 2, 0.877);
       padding: 5px;
@@ -31,12 +30,6 @@
       border-radius: 7px;
     }
 
-    /*  input[type="radio"] {
-  display: inline;
-}
-label[id="genderLabel"]{
-display: inline;
-}*/
     #btn {
       border-radius: 8px;
       height: 30px;
@@ -54,7 +47,6 @@ display: inline;
     #data {
       display: flex;
       flex-direction: column;
-      /*gap: 10px;*/
       width: 300px;
       border: 3px dotted rgba(49, 23, 2, 0.877);
       padding: 5px;
@@ -90,22 +82,23 @@ display: inline;
       </div>
       <br><br>
       <div id="displayData">
-        <!--div id="data">
-
-        </div -->
       </div>
 
     </div>
 
   </form>
   <script>
-    let arrayOfObjects = [];
+    //changing the url to we instead of http request
     const host = location.origin.replace(/^http/, "ws");
-    const wss = new WebSocket(host);
-    wss.onopen = () => {
+
+    //creating new websocket
+    const ws = new WebSocket(host);
+
+    ws.onopen = () => {
+
       console.log("Client Connected To Server");
 
-
+      //setting an event listener when the submit button is clicked to get the input fields submitted values
       document.querySelector("#btn").addEventListener("click", async () => {
         event.preventDefault();
         let name = document.querySelector("#name").value;
@@ -113,26 +106,34 @@ display: inline;
         let age = document.querySelector("#age").value;
         let gender = document.querySelector('input[name="gender"]:checked').value;
 
-        //console.log(name, gender, age, number);
+        //adding input fields values to an object
         let obj = await {
           "name": name,
           "age": age,
           "number": number,
           "gender": gender
         }
-        await wss.send(JSON.stringify(obj));
+
+        //sending the object to the server as a string
+        await ws.send(JSON.stringify(obj));
 
       })
-
-
-
     };
-    wss.onmessage = async (e) => {
-      arrayOfObjects = await JSON.parse(e.data);
+
+    ws.onmessage = async (e) => {
+
+      //saving the array of objects recieved from the server in a new array
+      let arrayOfObjects = await JSON.parse(e.data);
+
       await console.log(arrayOfObjects);
+
+      //getting the div that will contain the added divs later (which contain each submitted data) 
       let displayDataDiv = await document.getElementById("displayData");
+
+      //initializing its innerHTML to avoid dublicates
       displayDataDiv.innerHTML = await "";
 
+      //iterating through the objects array and adding each object contents in a div and adding this div inside the container div
       await arrayOfObjects.forEach(async (d) => {
         let dataHTML = await `
         <div id="data">
@@ -145,12 +146,7 @@ display: inline;
     `;
 
         displayDataDiv.innerHTML += dataHTML;
-        await console.log(displayDataDiv.innerHTML);
       });
-
-
-
-
     }
 
   </script>
