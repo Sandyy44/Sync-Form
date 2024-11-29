@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sync Form</title>
+  <style>
+    #container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    #getData {
+      display: flex;
+      flex-direction: column;
+      /*gap: 10px;*/
+      width: 300px;
+      border: 3px dotted rgba(49, 23, 2, 0.877);
+      padding: 5px;
+      border-radius: 5px;
+      background-color: rgba(136, 86, 53, 0.623);
+      align-items: center;
+    }
+
+    input {
+      width: 200px;
+      height: 20px;
+      border-radius: 7px;
+    }
+
+    /*  input[type="radio"] {
+  display: inline;
+}
+label[id="genderLabel"]{
+display: inline;
+}*/
+    #btn {
+      border-radius: 8px;
+      height: 30px;
+      width: 80px;
+    }
+
+    #displayData {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+
+    }
+
+    #data {
+      display: flex;
+      flex-direction: column;
+      /*gap: 10px;*/
+      width: 300px;
+      border: 3px dotted rgba(49, 23, 2, 0.877);
+      padding: 5px;
+      border-radius: 5px;
+      background-color: rgba(136, 86, 53, 0.623);
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <form method="get">
+    <div id="container">
+      <div id="getData">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter Your Name">
+        <br>
+        <label for="age">Age</label>
+        <input type="number" name="age" id="age" placeholder="Enter Your Age">
+        <br>
+        <label for="number">Number</label>
+        <input type="number" name="number" id="number" placeholder="Enter Your Number">
+        <br>
+        <label for="male" id="genderLabel">Male</label>
+        <input type="radio" name="gender" value="Male" id="male">
+
+        <br>
+        <label for="female" id="genderLabel">Female</label>
+        <input type="radio" name="gender" value="Female" id="female">
+
+        <br>
+        <button id="btn" type="submit">Submit</button>
+      </div>
+      <br><br>
+      <div id="displayData">
+        <!--div id="data">
+
+        </div -->
+      </div>
+
+    </div>
+
+  </form>
+  <script>
+    let arrayOfObjects = [];
+    const host = location.origin.replace(/^http/, "ws");
+    const wss = new WebSocket(host);
+    wss.onopen = () => {
+      console.log("Client Connected To Server");
+
+
+      document.querySelector("#btn").addEventListener("click", async () => {
+        event.preventDefault();
+        let name = document.querySelector("#name").value;
+        let number = document.querySelector("#number").value;
+        let age = document.querySelector("#age").value;
+        let gender = document.querySelector('input[name="gender"]:checked').value;
+
+        //console.log(name, gender, age, number);
+        let obj = await {
+          "name": name,
+          "age": age,
+          "number": number,
+          "gender": gender
+        }
+        await wss.send(JSON.stringify(obj));
+
+      })
+
+
+
+    };
+    wss.onmessage = async (e) => {
+      arrayOfObjects = await JSON.parse(e.data);
+      await console.log(arrayOfObjects);
+      let displayDataDiv = await document.getElementById("displayData");
+      displayDataDiv.innerHTML = await "";
+
+      await arrayOfObjects.forEach(async (d) => {
+        let dataHTML = await `
+        <div id="data">
+            <p>Name: ${d.name}</p>
+            <p>Age: ${d.age}</p>
+            <p>Number: ${d.number}</p>
+            <p>Gender: ${d.gender}</p>
+            <hr>
+        </div>
+    `;
+
+        displayDataDiv.innerHTML += dataHTML;
+        await console.log(displayDataDiv.innerHTML);
+      });
+
+
+
+
+    }
+
+  </script>
+</body>
+
+</html>
